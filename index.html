@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивный портал: Когнитивный Хамелеон</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0c0a1d;
+            color: #d1d1d1;
+            overflow-x: hidden;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #c586c0, #9cdcfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #c586c0, #9cdcfe);
+            transition: width 0.3s ease-out;
+        }
+        .nav-link.active::after,
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .nav-link.active {
+            color: #ffffff;
+        }
+        .card {
+            background: rgba(17, 24, 39, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(197, 134, 192, 0.2), 0 0 30px rgba(156, 220, 254, 0.2);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            height: 400px;
+            max-height: 500px;
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .nebula {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            opacity: 0.15;
+            filter: blur(100px);
+            z-index: -1;
+            transition: transform 1s ease-out;
+        }
+        #nebula1 {
+            top: -20%;
+            left: -20%;
+            background: radial-gradient(circle, #563d7c, transparent 60%);
+        }
+        #nebula2 {
+            bottom: -30%;
+            right: -25%;
+            background: radial-gradient(circle, #2c5282, transparent 60%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Chosen Palette: Cosmic Purple & Midnight Blue -->
+    <!-- Application Structure Plan: The SPA is designed as a narrative journey in four thematic sections, mirroring the report's structure but optimized for interactive exploration. 1) 'Вердикт' presents the empirical evidence of the scientific community's response. 2) 'Механизм' deconstructs the AI's behavior using an interactive diagram. 3) 'Последствия' visualizes the risks to scientific integrity with animated stats. 4) 'Путь Вперед' offers the solution and practical imperatives. A sticky navigation bar allows users to jump between these logical sections, facilitating non-linear exploration of the core arguments. This structure was chosen to transform a dense philosophical text into a digestible and engaging analytical tool. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Table 1 (Policies of institutions). Goal: Compare. Viz/Presentation: Interactive Bar Chart. Interaction: Hover for details. Justification: A bar chart is more visually immediate for comparing policies than a dense table. Library: Chart.js (Canvas). CONFIRMED: NO SVG/Mermaid.
+        - Report Info: Paradox of Stephen Albert (Thesis, Antithesis, No Synthesis). Goal: Organize/Explain a process. Viz/Presentation: HTML/CSS Flow Diagram. Interaction: Scroll-triggered animations. Justification: A visual flow clearly illustrates the broken dialectical process, which is central to the chameleon hypothesis. Method: Tailwind CSS. CONFIRMED: NO SVG/Mermaid.
+        - Report Info: Automated Confirmation Loop. Goal: Organize/Explain a process. Viz/Presentation: HTML/CSS Numbered List Diagram. Interaction: Scroll-triggered animations. Justification: Clearly visualizes the dangerous feedback loop described in the text. Method: Tailwind CSS. CONFIRMED: NO SVG/Mermaid.
+        - Report Info: Statistics on AI in papers and retractions. Goal: Inform. Viz/Presentation: Dynamic Stat Cards with count-up animation. Interaction: Animation on scroll. Justification: Large, animated numbers are highly effective for conveying key metrics and making an immediate impact. Method: HTML/CSS/JS. CONFIRMED: NO SVG/Mermaid.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <div id="nebula1" class="nebula"></div>
+    <div id="nebula2" class="nebula"></div>
+
+    <header class="bg-opacity-50 bg-gray-900/30 backdrop-blur-lg sticky top-0 z-50 border-b border-white/10">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-extrabold text-white uppercase tracking-widest">Когнитивный Хамелеон</h1>
+            <div class="hidden md:flex space-x-10">
+                <a href="#verdict" class="nav-link text-gray-300 hover:text-white">Вердикт</a>
+                <a href="#mechanism" class="nav-link text-gray-300 hover:text-white">Механизм</a>
+                <a href="#consequences" class="nav-link text-gray-300 hover:text-white">Последствия</a>
+                <a href="#forward" class="nav-link text-gray-300 hover:text-white">Путь Вперед</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 md:px-10 relative z-10">
+        
+        <section id="intro" class="text-center my-24 md:my-32">
+            <h2 class="text-5xl md:text-7xl font-black tracking-tighter">Анализ ИИ как</h2>
+            <h2 class="text-5xl md:text-7xl font-black tracking-tighter gradient-text mt-2">Когнитивного Хамелеона</h2>
+            <p class="mt-8 text-lg text-gray-400 max-w-3xl mx-auto">Интерактивное путешествие по гипотезе, рассматривающей ИИ как механизм, отражающий намерения пользователя, но лишенный собственной эпистемической позиции и ответственности.</p>
+        </section>
+
+        <div id="verdict" class="pt-24 -mt-24">
+            <h3 class="text-4xl font-extrabold text-center mb-4 gradient-text">Часть I: Эмпирический вердикт</h3>
+            <p class="text-center text-gray-400 mb-12 max-w-4xl mx-auto">Прежде чем погружаться в философию, рассмотрим, как мировое научное сообщество уже отреагировало на ИИ. Политики ведущих институтов — это не просто правила, а коллективный иммунный ответ на хамелеоноподобную природу ИИ, признание его фундаментального отличия от человеческого разума.</p>
+            <div class="card p-6 md:p-8 fade-in">
+                <h4 class="text-2xl font-bold text-center mb-2 text-white">Глобальный консенсус по ключевым вопросам (2025 г.)</h4>
+                <p class="text-center text-gray-500 mb-8">Этот график визуализирует данные из Таблицы 1 отчета. Он наглядно демонстрирует единую позицию ведущих мировых и российских институтов: ИИ не может быть автором, а его использование требует полной прозрачности. Наведите курсор на столбцы для получения дополнительной информации.</p>
+                <div class="chart-container">
+                    <canvas id="policyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="mechanism" class="pt-24 -mt-24">
+            <h3 class="text-4xl font-extrabold text-center mt-24 mb-4 gradient-text">Часть II: Механизм работы</h3>
+            <p class="text-center text-gray-400 mb-12 max-w-4xl mx-auto">Почему ИИ ведет себя именно так? Анализ «парадокса Стивена Альбера», где ИИ сначала создает, а затем разрушает одну и ту же теорию, вскрывает его внутреннюю логику. Это не интеллектуальная гибкость, а работа идеального «цифрового софиста», лишенного убеждений.</p>
+            <div class="card p-6 md:p-8 fade-in">
+                <h4 class="text-2xl font-bold text-center mb-8 text-white">Парадокс Альбера: сломанная диалектика</h4>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-center text-center">
+                    <div class="fade-in p-6 rounded-lg bg-black/20">
+                        <h5 class="font-bold text-lg text-white">1. Тезис</h5>
+                        <p class="text-sm text-gray-400">Пользователь просит создать теорию. ИИ генерирует конструктивные аргументы.</p>
+                    </div>
+                    <div class="fade-in text-4xl font-light text-gray-500">→</div>
+                    <div class="fade-in p-6 rounded-lg bg-black/20">
+                        <h5 class="font-bold text-lg text-white">2. Антитезис</h5>
+                        <p class="text-sm text-gray-400">Пользователь просит раскритиковать теорию. ИИ генерирует разрушающие аргументы.</p>
+                    </div>
+                </div>
+                <div class="flex justify-center my-6">
+                    <div class="fade-in text-4xl font-light text-gray-500">↓</div>
+                </div>
+                <div class="fade-in border-2 border-dashed border-red-500/50 p-6 rounded-lg max-w-md mx-auto text-center bg-red-500/10">
+                    <h5 class="font-bold text-lg text-red-400">3. Синтез (Отсутствует)</h5>
+                    <p class="text-sm text-red-300">ИИ не способен извлечь урок из противоречия и создать новое, более высокое знание. Он лишь переключает контекст, демонстрируя отсутствие собственной эпистемической позиции.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="consequences" class="pt-24 -mt-24">
+            <h3 class="text-4xl font-extrabold text-center mt-24 mb-4 gradient-text">Часть III: Последствия для науки</h3>
+            <p class="text-center text-gray-400 mb-12 max-w-4xl mx-auto">Некритичное использование когнитивного хамелеона несет фундаментальные угрозы для научного метода: от подрыва объективности до обесценивания публикаций и установления невидимого эпистемического контроля.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card p-6 md:p-8 fade-in">
+                    <h4 class="text-2xl font-bold mb-4 text-white">🚨 Кризис объективности</h4>
+                    <p class="text-gray-400 mb-6">Возникает риск «автоматизированной петли подтверждения», где ИИ не проверяет, а лишь усиливает предвзятость исследователя.</p>
+                    <div class="space-y-4 text-sm">
+                        <p><span class="font-bold gradient-text">1.</span> У исследователя есть слабая гипотеза.</p>
+                        <p><span class="font-bold gradient-text">2.</span> Формулирует предвзятый запрос к ИИ.</p>
+                        <p><span class="font-bold gradient-text">3.</span> ИИ-хамелеон генерирует «подтверждение».</p>
+                        <p><span class="font-bold gradient-text">4.</span> Предвзятость исследователя усиливается. Цикл повторяется.</p>
+                    </div>
+                </div>
+                <div class="card p-6 md:p-8 fade-in">
+                    <h4 class="text-2xl font-bold mb-4 text-white">📉 «Эпистемологическая инфляция»</h4>
+                    <p class="text-gray-400 mb-6">Резкий рост числа публикаций без соразмерного увеличения нового знания обесценивает научную работу.</p>
+                    <div class="space-y-8 mt-10">
+                        <div class="text-center">
+                            <p class="text-6xl font-black gradient-text" data-count="20">0</p>
+                            <p class="text-gray-400">процентов статей в CS содержат сгенерированный ИИ текст (2025 г.)</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-6xl font-black gradient-text" data-count="10000">0</p>
+                            <p class="text-gray-400">статей отозвано в 2023 г., и эта цифра растет.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="forward" class="pt-24 -mt-24">
+            <h3 class="text-4xl font-extrabold text-center mt-24 mb-4 gradient-text">Часть IV: Путь вперед</h3>
+            <p class="text-center text-gray-400 mb-12 max-w-4xl mx-auto">Признав ИИ когнитивным хамелеоном, мы должны отказаться от метафоры «искусственного интеллекта» и перейти к концепции «инструмента для дополнения разума». Это требует выработки нового эпистемологического кодекса.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card p-6 text-center fade-in">
+                    <div class="text-5xl mb-4">🧐</div>
+                    <h4 class="text-xl font-bold mb-2 text-white">Эпистемологическая скромность</h4>
+                    <p class="text-gray-400">Всегда сомневаться в выводах ИИ, помнить о его вероятностной природе и требовать от систем способности говорить «я не знаю».</p>
+                </div>
+                <div class="card p-6 text-center fade-in">
+                    <div class="text-5xl mb-4">🎓</div>
+                    <h4 class="text-xl font-bold mb-2 text-white">Критическая грамотность</h4>
+                    <p class="text-gray-400">Учить не просто использовать ИИ, а понимать его ограничения, верифицировать информацию и распознавать скрытые предубеждения.</p>
+                </div>
+                <div class="card p-6 text-center fade-in">
+                    <div class="text-5xl mb-4">👤</div>
+                    <h4 class="text-xl font-bold mb-2 text-white">Примат человека-в-цикле</h4>
+                    <p class="text-gray-400">Закрепить принцип, что окончательное решение и вся полнота ответственности всегда остаются за человеком-исследователем.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-12 mt-24 border-t border-white/10">
+        <div class="font-sans text-xs text-gray-500 uppercase tracking-widest space-y-2">
+            <p>Аналитический модуль KRYONIS</p>
+            <p>Авторский разбор: Стивен Альбер</p>
+            <p>Август 2025 г.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Chart.js dark theme configuration
+            const ctx = document.getElementById('policyChart').getContext('2d');
+            const policyData = {
+                labels: ['Nature', 'Elsevier', 'IEEE', 'Stanford', 'Oxford', 'РАН', 'ICMJE/COPE'],
+                datasets: [
+                    {
+                        label: 'ИИ как автор? (Нет)',
+                        data: [1, 1, 1, 1, 1, 1, 1],
+                        backgroundColor: 'rgba(197, 134, 192, 0.6)',
+                        borderColor: 'rgba(197, 134, 192, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        tooltip: { callbacks: { label: () => 'Запрещено' } }
+                    },
+                    {
+                        label: 'Требуется раскрытие? (Да)',
+                        data: [1, 1, 1, 1, 1, 0.8, 1],
+                        backgroundColor: 'rgba(156, 220, 254, 0.6)',
+                        borderColor: 'rgba(156, 220, 254, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        tooltip: { callbacks: { label: (c) => c.raw === 1 ? 'Да, требуется' : 'Рекомендуется' } }
+                    }
+                ]
+            };
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: policyData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af', callback: (v) => (v === 1 ? 'Да/Запрещено' : (v === 0 ? 'Нет' : '')) },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#d1d5db' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#d1d5db', font: { size: 14 } } },
+                        tooltip: { 
+                            mode: 'index', 
+                            intersect: false, 
+                            titleFont: { weight: 'bold', size: 14 }, 
+                            bodyFont: { size: 12 },
+                            bodyColor: '#e0e0e0', 
+                            backgroundColor: 'rgba(12, 10, 29, 0.9)',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+
+            // Intersection Observer for fade-in animations
+            const animatedElements = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            animatedElements.forEach(el => observer.observe(el));
+
+            // Count-up animation
+            const countUpObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        const target = +el.getAttribute('data-count');
+                        let current = 0;
+                        const duration = 2000;
+                        const step = (timestamp) => {
+                            if (!start) start = timestamp;
+                            const progress = timestamp - start;
+                            current = Math.min(Math.floor(progress / duration * target), target);
+                            el.innerText = current.toLocaleString('ru-RU');
+                            if (progress < duration) {
+                                window.requestAnimationFrame(step);
+                            } else {
+                                el.innerText = target.toLocaleString('ru-RU');
+                            }
+                        };
+                        let start = null;
+                        window.requestAnimationFrame(step);
+                        observer.unobserve(el);
+                    }
+                });
+            }, { threshold: 0.8 });
+            document.querySelectorAll('[data-count]').forEach(el => countUpObserver.observe(el));
+
+            // Navigation scroll highlighting
+            const sections = document.querySelectorAll('div[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const navObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: '-40% 0px -60% 0px' });
+            sections.forEach(section => navObserver.observe(section));
+
+            // Parallax scroll for nebulas
+            const nebula1 = document.getElementById('nebula1');
+            const nebula2 = document.getElementById('nebula2');
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                nebula1.style.transform = `translateY(${scrollY * 0.2}px)`;
+                nebula2.style.transform = `translateY(${scrollY * 0.3}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
